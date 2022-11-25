@@ -1,0 +1,71 @@
+﻿@page "/recipientes/eliminar/{id:int}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService _localStorageService
+
+<MudText Typo="Typo.h2" Class="ml">Eliminar Recipientes</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <EditForm Model="recipientes" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudCard Class="pa-5 red lighten-4" Style="height:50vh">
+                    <MudCardContent>
+                        <MudTextField Label="Nombre" @bind-Value="recipientes.Nombre" For="@(() => recipientes.Nombre)" />
+                        <MudTextField Label="Estado" @bind-Value="recipientes.Estado" For="@(() => recipientes.Estado)" />
+                        <MudTextField Label="Tamaño" @bind-Value="recipientes.Tamaño" For="@(() => recipientes.Tamaño)" />
+                        <MudTextField Label="Imagen" @bind-Value="recipientes.Imagen" For="@(() => recipientes.Imagen)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Eliminar</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+            @if (showLeaveAlert)
+            {
+                <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(true))">Ocurrió un problema.</MudAlert>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private bool showLeaveAlert = false;
+    Recipientes recipientes = new Recipientes();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Http.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", await _localStorageService.GetItemAsync<string>("token"));
+        var resp = await Http.GetStringAsync("recipiente/" + id);
+        recipientes = JsonSerializer.Deserialize<Recipientes>(resp, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        await eliminar();
+    }
+
+    private async Task eliminar()
+    {
+
+        var httpResponse = await Http.DeleteAsync("recipiente/" + recipientes.Id);
+
+        if (!(httpResponse.StatusCode == System.Net.HttpStatusCode.OK))
+        {
+            showLeaveAlert = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("recipientes/index");
+        }
+    }
+
+    private void CloseMe(bool value)
+    {
+        showLeaveAlert = false;
+    }
+}

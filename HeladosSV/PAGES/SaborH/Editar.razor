@@ -1,0 +1,72 @@
+﻿@page "/saborH/editar/{id:int}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService _localStorageService
+
+<MudText Typo="Typo.h2" Class="d-flex justify-center">Editar Sabor</MudText>
+
+<MudGrid>
+    <MudItem xs="0" sm="2"></MudItem>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <EditForm Model="saborH" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudCard Class="pa-5 red lighten-4" Style="height:50vh">
+                    <MudCardContent>
+                        <MudTextField Label="Nombre" @bind-Value="saborH.Nombre" For="@(() => saborH.Nombre)" />
+                        <MudTextField Label="Estado" @bind-Value="saborH.Estado" For="@(() => saborH.Estado)" />
+                        <MudTextField Label="Imagen" @bind-Value="saborH.Imagen" For="@(() => saborH.Imagen)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Guardar cambios</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+            @if (showLeaveAlert)
+            {
+                <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(true))">No se pudo guardar.</MudAlert>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private bool showLeaveAlert = false;
+    SaborH saborH = new SaborH();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Http.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", await _localStorageService.GetItemAsync<string>("token"));
+        var resp = await Http.GetStringAsync("saborH/" + id);
+        saborH = JsonSerializer.Deserialize<SaborH>(resp, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        Console.WriteLine(saborH.Id + " " + saborH.Nombre);
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        await saveChanges();
+    }
+
+    private async Task saveChanges()
+    {
+
+        var httpResponse = await Http.PutAsJsonAsync<SaborH>("SaborH/" + saborH.Id, saborH);
+
+        if (!(httpResponse.StatusCode == System.Net.HttpStatusCode.OK))
+        {
+            showLeaveAlert = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("saborH/index");
+        }
+    }
+
+    private void CloseMe(bool value)
+    {
+        showLeaveAlert = false;
+    }
+}

@@ -1,0 +1,59 @@
+﻿@page "/saborH/index"
+@using System.Text.Json
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+<MudText Typo="Typo.h3" Class="d-flex justify-center">Sabores helados</MudText>
+
+<MudTable Items="@saborH" Hover="true" Bordered="true" Striped="true" Class="pa-13 red lighten-4" Style="height:150vh">
+    <ToolBarContent >
+        @*<MudText Typo="Typo.h6">Lista de Registros</MudText>
+        <MudSpacer />*@
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="goAdd" />
+        <MudSpacer />
+        <MudTextField @bind-Value="searchText" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Estado</MudTh>
+        <MudTh>Imagen</MudTh>
+    </HeaderContent>
+    <RowTemplate >
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="Estado">@context.Estado</MudTd>
+        <MudTd DataLabel="Imagen">@context.Imagen</MudTd>
+        <MudTd>
+            <MudButton Link="@($"/saborH/editar/{context.Id}")" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Tertiary"
+                       Class="text-center">Editar</MudButton>
+            <MudButton Link="@($"/saborH/eliminar/{context.Id}")" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning"
+                       Class="text-center">Eliminar</MudButton>
+        </MudTd>
+
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private IEnumerable<SaborH> saborH = new List<SaborH>();
+    private string searchText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await getAll();
+    }
+
+    private async Task getAll()
+    {
+        var httpResponse = await httpClient.GetStringAsync("saborH");
+        saborH = JsonSerializer.Deserialize<IEnumerable<SaborH>>(httpResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+
+    private void goAdd()
+    {
+        NavigationManager.NavigateTo("saborH/agregar");
+    }
+}
