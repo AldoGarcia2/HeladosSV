@@ -3,6 +3,8 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorageService
 
+@using DeptosES.AdministradorBlazor.Models
+
 <MudText Typo="Typo.h2" Class="ml">Usuario</MudText>
 
 <MudTable Items="@usuarios" Hover="true" Bordered="true" Striped="true">
@@ -13,19 +15,25 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Id</MudTh>
-        @*<MudTh>IdRol</MudTh>*@
-        <MudTh>IdRol</MudTh>
         <MudTh>Nombre</MudTh>
         <MudTh>Apellido</MudTh>
-        <MudTh> Login</MudTh>
-
+        <MudTh>Login</MudTh>
+        <MudTh>Estado</MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
-        <MudTd DataLabel="IdRol">@context.IdRol</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
         <MudTd DataLabel="Apellido">@context.Apellido</MudTd>
         <MudTd DataLabel="Login">@context.Login</MudTd>
+        @if(context.Estatus == 1)
+        {
+            <MudTd DataLabel="Estatus">Activo</MudTd>
+        }
+        else
+        {
+            <MudTd DataLabel="Estatus">Inactivo</MudTd>
+        }
         <MudTd>
             <MudButton Link="@($"/usuario/editar/{context.Id}")" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Tertiary"
                        Class="text-center">Editar</MudButton>

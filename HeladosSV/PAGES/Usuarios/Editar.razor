@@ -1,29 +1,30 @@
-﻿@page "/usuario/editar/{id:int}"
+﻿@page "/Usuario/editar/{id:int}"
 
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorageService
 
-<MudText Typo="Typo.h2" Class="ml">Editar Usuario</MudText>
+<MudText Typo="Typo.h2" Class="ml">Editar Datos de usuario</MudText>
 
 <MudGrid>
     <MudItem xs="12" sm="7">
         <MudPaper Class="pa-4">
-            <EditForm Model="usuario" OnValidSubmit="OnValidSubmit">
+            <EditForm Model="usuarios" OnValidSubmit="OnValidSubmit">
                 <DataAnnotationsValidator />
                 <MudCard>
                     <MudCardContent>
-                        <MudTextField Label="Nombre" @bind-Value="usuario.Nombre" For="@(() => usuario.Nombre)" />
-                        <MudTextField Label="Apellido" @bind-Value="usuario.Apellido" For="@(() => usuario.Apellido)" />
-                        <MudTextField Label="Login" @bind-Value="usuario.Login" For="@(() => usuario.Login)" />
-                        <MudTextField Label="Password" @bind-Value="usuario.Password" For="@(() => usuario.Password)" />
-                        <MudSelect Variant="Variant.Outlined" Label="Rol" AnchorOrigin="Origin.BottomCenter"
-                                   @bind-Value="usuario.IdRol" For="@(() => usuario.IdRol)">
-                            @foreach (var item in roles)
+                        <MudSelect Variant="Variant.Outlined" Label="Rol de sistema" AnchorOrigin="Origin.BottomCenter"
+                                   @bind-Value="usuarios.IdRol" For="@(() => usuarios.IdRol)">
+                            @foreach (var item in rol)
                             {
                                 <MudSelectItem Value="@item.Id">@item.Nombre</MudSelectItem>
                             }
                         </MudSelect>
+                        <MudTextField Label="Nombre" @bind-Value="usuarios.Nombre" For="@(() => usuarios.Nombre)" />
+                        <MudTextField Label="Apellido" @bind-Value="usuarios.Apellido" For="@(() => usuarios.Apellido)" />
+                        <MudTextField Label="entrada" @bind-Value="usuarios.Login" For="@(() => usuarios.Login)" />
+                        <MudTextField Label="Estatus Activo=1 Inactivo=2" @bind-Value="usuarios.Estatus" For="@(() => usuarios.Estatus)" />
+                        @*<MudTextField Label="Meses/Dias/Años" @bind-Value="usuarios.FechaRegistro" For="@(() => usuarios.FechaRegistro)" />*@
                     </MudCardContent>
                     <MudCardActions>
                         <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Guardar cambios</MudButton>
@@ -41,19 +42,18 @@
     @code {
         [Parameter]
         public int id { get; set; }
-
-        private IEnumerable<Rol> roles = new List<Rol>();
+        private IEnumerable<Rol> rol = new List<Rol>();
         private bool showLeaveAlert = false;
-        Usuario usuario = new Usuario();
+        EditUsuario usuarios = new EditUsuario();
 
         protected override async Task OnInitializedAsync()
         {
             Http.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", await _localStorageService.GetItemAsync<string>("token"));
-            await getRoles();
+            await getRol();
 
             var resp = await Http.GetStringAsync("usuario/" + id);
-            usuario = JsonSerializer.Deserialize<Usuario>(resp, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            usuarios = JsonSerializer.Deserialize<EditUsuario>(resp, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
         private async Task OnValidSubmit(EditContext context)
@@ -63,7 +63,7 @@
 
         private async Task saveChanges()
         {
-            var httpResponse = await Http.PutAsJsonAsync<Usuario>("usuario/" + usuario.Id, usuario);
+            var httpResponse = await Http.PutAsJsonAsync<EditUsuario>("usuario/" + usuarios.Id, usuarios);
 
             if (!(httpResponse.StatusCode == System.Net.HttpStatusCode.OK))
             {
@@ -80,9 +80,11 @@
              showLeaveAlert = false;
         }
 
-        private async Task getRoles()
+           private async Task getRol()
         {
-            var httpResponse = await Http.GetStringAsync("usuario");
-            roles = JsonSerializer.Deserialize<IEnumerable<Rol>>(httpResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var httpResponse = await Http.GetStringAsync("Rol");
+           
+            rol = JsonSerializer.Deserialize<IEnumerable<Rol>>(httpResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+           
         }
     }
