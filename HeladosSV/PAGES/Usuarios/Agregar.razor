@@ -56,7 +56,7 @@
     }
     private async Task save()
     {
-        var httpResponse = await Http.PostAsJsonAsync<Usuario>("usuario", usuarios);
+        var httpResponse = await Http.PostAsJsonAsync<Usuario>("Usuario", usuarios);
         if (!(httpResponse.StatusCode == System.Net.HttpStatusCode.OK))
         {
             showLeaveAlert = true;

@@ -1,14 +1,15 @@
 ﻿@layout LoginLayout
 @page "/"
 @using Blazored.LocalStorage
+@using DeptosES.AdministradorBlazor.Models
 @using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService _localStorageService
 @inject HttpClient Http
 
-<MudImage ObjectFit="ObjectFit.Contain" Src="/images/hola.png" Width="200" Height="150" Alt="Swedish Farm House" Elevation="0" Class="rounded-lg ma-4" />
-<MudPaper Class="pa-2 ma-4" Elevation="0">
+<MudImage ObjectFit="ObjectFit.Contain" Src="/images/HolaLogo2.png" Width="200" Height="150" Alt="Swedish Farm House" Elevation="0" Class="rounded-lg ma-4 " />
+<MudPaper Class="pa-2 ma-4 " Elevation="0">
     <EditForm Model="@user" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
         <MudGrid>
